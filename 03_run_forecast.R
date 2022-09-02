@@ -1,8 +1,9 @@
 ##' run aquatic forecast into the future
 ##' @param model site-specific list of forecast models
 ##' @param met_forecast weather forecast dataframe
-##' @return 
-run_forecast <- function(model,met_forecast,site_date){
+##' @param site_data dataframe of site metadata
+##' @return dataframe in EFI standard format
+run_forecast <- function(model,met_forecast,site_data){
   
   forecast <- NULL
   sites <- names(model)

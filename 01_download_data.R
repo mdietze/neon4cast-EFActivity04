@@ -37,9 +37,13 @@ merge_met_past <- function(target){
     mutate(air_temperature = air_temperature - 273.15)
   
   ## Merge in past NOAA data into the targets file, matching by date.
-  target <- target |> 
-    select(datetime, site_id, variable, observed) |> 
-    filter(variable %in% c("temperature", "oxygen")) |> 
+  target <- target %>% 
+    group_by(datetime, site_id,variable) %>%
+    summarize(obs2 = mean(observed, na.rm = TRUE), .groups = "drop") %>%
+    mutate(obs3 = ifelse(is.nan(obs2),NA,obs2)) %>%
+    select(datetime, site_id, variable, obs3) %>%
+    rename(observed = obs3) %>%
+    filter(variable %in% c("temperature", "oxygen")) %>% 
     tidyr::pivot_wider(names_from = "variable", values_from = "observed")
   
   target <- left_join(target, noaa_past_mean, by = c("datetime","site_id"))

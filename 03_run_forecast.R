@@ -9,7 +9,7 @@ run_forecast <- function(model,met_forecast,site_data){
   sites <- names(model)
   
   for(i in 1:length(sites)){
-  
+    
     # Get site information for elevation
     site_info <- site_data %>% filter(field_site_id == sites[i]) 
     
@@ -20,7 +20,7 @@ run_forecast <- function(model,met_forecast,site_data){
       
       #use model to forecast water temperature for each ensemble member
       forecasted_temperature <- predict(model[[i]],met_future_site)
-
+      
       #use forecasted temperature to predict oyxgen by assuming that oxygen is saturated.  
       forecasted_oxygen <- rMR::Eq.Ox.conc(forecasted_temperature, 
                                            elevation.m = site_info$field_mean_elevation_m, 
@@ -30,16 +30,16 @@ run_forecast <- function(model,met_forecast,site_data){
                                            salinity = 0, 
                                            salinity.units = "pp.thou")
       ## organize outputs
-      temperature <- tibble(time = met_future_site$time,
+      temperature <- tibble(datetime = met_future_site$datetime,
                             site_id = sites[i],
-                            ensemble = met_future_site$ensemble,
-                            predicted = forecasted_temperature,
+                            parameter = met_future_site$parameter,
+                            prediction = forecasted_temperature,
                             variable = "temperature")
       
-      oxygen <- tibble(time = met_future_site$time,
+      oxygen <- tibble(datetime = met_future_site$datetime,
                        site_id = sites[i],
-                       ensemble = met_future_site$ensemble,
-                       predicted = forecasted_oxygen,
+                       parameter = met_future_site$parameter,
+                       prediction = forecasted_oxygen,
                        variable = "oxygen")
       
       
@@ -47,12 +47,13 @@ run_forecast <- function(model,met_forecast,site_data){
       forecast <- dplyr::bind_rows(forecast, temperature, oxygen)
       
     }
-  
+    
   }
   
+  ## reorganize into EFI standard
   forecast <- forecast |> 
-    mutate(start_time = forecast_date) |> #start_time is today
-    select(time, start_time, site_id, variable, ensemble, predicted)
+    mutate(reference_datetime = forecast_date) |>
+    select(datetime, reference_datetime, site_id, variable, parameter, prediction)
   
   return(forecast)
 }

@@ -3,7 +3,8 @@
 library(tidyverse)
 library(neon4cast)
 library(lubridate)
-install.packages("rMR")
+install.packages("biglm")
+devtools::install_version("rMR", version = "1.1.0")
 library(rMR)
 
 forecast_date <- Sys.Date()

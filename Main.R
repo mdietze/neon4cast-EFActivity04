@@ -44,7 +44,7 @@ forecast <- run_forecast(model,met_future,site_data)
 
 print("#Visualize forecast.  Is it reasonable?")
 forecast %>% 
-  ggplot(aes(x = time, y = predicted, group = ensemble)) +
+  ggplot(aes(x = datetime, y = prediction, group = parameter)) +
   geom_line() +
   facet_grid(variable~site_id, scale ="free")
 
